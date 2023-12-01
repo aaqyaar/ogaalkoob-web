@@ -16,5 +16,9 @@ export interface LoginResult {}
 
 export interface PaginationResult<T> {
   data: T[];
-  hasNextPage: boolean;
+  endIndex: number;
+  startIndex: number;
+  count: number;
+  currentPage: number;
+  numberOfPages: number;
 }
