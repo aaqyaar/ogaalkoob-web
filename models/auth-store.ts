@@ -7,7 +7,7 @@ import { persist } from "zustand/middleware";
 type AuthStore = {
   token: string;
   profile: IUser;
-
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<ILoginResponse>;
   logout: () => void;
   getMe: () => Promise<IUser>;
@@ -17,6 +17,7 @@ export const useAuthStore = create(
   persist<AuthStore>(
     (set) => ({
       token: "",
+      isAuthenticated: false,
       profile: {} as IUser,
       login: async (email: string, password: string) => {
         const { token } = await api.post<ILoginResponse>("/auth/login", {
@@ -24,7 +25,7 @@ export const useAuthStore = create(
           password,
         });
 
-        set({ token });
+        set({ token, isAuthenticated: true });
         return { token };
       },
       getMe: async () => {
@@ -32,7 +33,8 @@ export const useAuthStore = create(
         set({ profile: data });
         return data;
       },
-      logout: () => set({ token: "", profile: {} as IUser }),
+      logout: () =>
+        set({ token: "", profile: {} as IUser, isAuthenticated: false }),
     }),
     {
       name: "authStore",
