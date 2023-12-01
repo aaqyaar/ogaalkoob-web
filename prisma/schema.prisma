@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id            String   @id @default(uuid())
+  title         String
+  author        String
+  publishedDate DateTime
+  isbn          String  @unique
+  photos        String[]
+  price         Float
+  description   String
+  genre        Genre[]
+
+  pdfUrl        String
+  audioUrl      String
+
+  isDeleted     Boolean  @default(false)
+  deletedBy     String?
+  purchases     Purchase[]
+
+  deletedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("books")
+}
+
+model Genre {
+  id   String @id @default(uuid())
+  name String @unique
+  books Book[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("book_genres")
+}
+
+model Purchase {
+  id          String   @id @default(uuid())
+  purchaseDate DateTime
+  amount      Float
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  books       Book[]
+  status      PurchaseStatus   @default(PENDING)
+  
+  phoneNumber String
+  paymentMethod PaymentMethod @default(MMT)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("purchases")
+}
+
+model User {
+  id       String    @id @default(uuid())
+  email    String    @unique
+  password String
+  name     String
+  status   Status   @default(ACTIVE)
+  isDeleted Boolean   @default(false)
+  deletedBy String?
+  roleId   String
+  role     Role      @relation(fields: [roleId], references: [id])
+  purchases Purchase[]
+  passwordReset          PasswordReset[]
+
+  deletedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}
+
+
+model PasswordReset {
+  id       String    @id @default(uuid())
+
+  resetCode String  @unique
+  resetCodeExpiry DateTime
+  
+  userId String 
+  user User @relation(fields: [userId], references: [id])
+
+  changedAt   DateTime @default(now())
+
+  @@map("password_resets")
+
+} 
+
+
+
+model Role {
+  id   String @id @default(uuid())
+  name RoleName
+  users User[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum RoleName {
+  ADMIN
+  SUBSCRIBER
+}
+
+enum PaymentMethod {
+  MMT
+  CARD
+  CASH
+}
