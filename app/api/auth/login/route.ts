@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     const error = err as Error;
+    console.log(error);
     return new NextResponse(
       JSON.stringify({ message: error.message || error.toString() }),
       {

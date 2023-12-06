@@ -8,44 +8,105 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui";
 import { useAuthStore } from "@/models/auth-store";
-import { Label } from "@radix-ui/react-label";
+import { useRouter } from "next/navigation";
 import React from "react";
 import toast from "react-hot-toast";
+import { loginSchema } from "@/validations/user";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 export default function LoginPage() {
-  const { token, login } = useAuthStore((state) => state);
+  const { token, login, status, setStatus } = useAuthStore((state) => state);
+  const router = useRouter();
 
-  const handleSignIn = async () => {
-    login("abdizamedmo@gmail.com", "123456")
-      .then((res) => {})
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    login(data.email, data.password)
+      .then((res) => {
+        if (res && res.token) {
+          router.replace("/");
+        }
+      })
       .catch((err) => {
+        setStatus(err.message);
         toast.error(err.message);
       });
   };
 
   return (
-    <Card className="w-[25rem]">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Sign in</CardTitle>
-        <CardDescription>Quickly sign in to your account.</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" placeholder="*********" />
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full" onClick={handleSignIn}>
-          Sign in
-        </Button>
-      </CardFooter>
-    </Card>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Card className="w-[25rem]">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl">Sign in</CardTitle>
+            <CardDescription>Quickly sign in to your account.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="*********"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter>
+            <Button
+              className="w-full"
+              type="submit"
+              loading={status === "pending"}
+            >
+              Sign in
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 }
