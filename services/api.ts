@@ -5,7 +5,7 @@ import axios, {
   AxiosInstance,
 } from "axios";
 import { getGeneralApiProblem } from "./api.problem";
-import { load } from "@/lib/storage";
+import { load, clear } from "@/lib/storage";
 import { ILoginResponse } from "@/types/auth";
 // import { ApiProblem } from "./api.types";
 
@@ -24,6 +24,7 @@ class ApiService {
     const store = load("authStore") as {
       state: ILoginResponse;
     };
+
     this.instance.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${store?.state?.token}`;
@@ -32,6 +33,14 @@ class ApiService {
       (response: AxiosResponse) => response,
       (err: Error) => {
         const error = err as Error;
+
+        if (
+          error.message === "jwt expired" ||
+          error.message === "Not authenticated"
+        ) {
+          clear();
+        }
+
         return Promise.reject(error);
       }
     );

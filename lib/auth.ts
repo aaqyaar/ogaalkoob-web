@@ -41,5 +41,5 @@ export const isAuthenticated = async (
     throw new Error("Forbidden, you are not authorized to access this route");
   }
 
-  return payload;
+  return { payload, user };
 };
