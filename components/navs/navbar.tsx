@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
@@ -20,16 +19,16 @@ interface NavConfig {
   protected?: boolean;
 }
 
-export interface IMainNav extends React.HTMLAttributes<HTMLElement> {
+export interface INavbar extends React.HTMLAttributes<HTMLElement> {
   navConfig: NavConfig[];
 }
 
-export function MainNav({
+export function Navbar({
   className,
   navConfig,
 
   ...props
-}: IMainNav) {
+}: INavbar) {
   const { logout, isAuthenticated } = useAuthStore();
 
   return (

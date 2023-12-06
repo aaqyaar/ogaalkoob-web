@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
-import { IMainNav, MainNav } from "./navbar";
+import { INavbar, Navbar } from "./navbar";
 import { useAuthStore } from "@/models/auth-store";
 
 export default function NavbarLayout() {
-  const navs: IMainNav["navConfig"] = [
+  const navs: INavbar["navConfig"] = [
     { label: "Overview", href: "/dashboard", protected: true },
     { label: "Books", href: "/dashboard/books", protected: true },
-    { label: "Genre's", href: "/dashboard/genre", protected: true },
+    { label: "Genre's", href: "/dashboard/genres", protected: true },
     { label: "Users", href: "/dashboard/users", protected: true },
   ];
   const { isAuthenticated } = useAuthStore();
@@ -22,7 +22,7 @@ export default function NavbarLayout() {
   return (
     <header className="border-b">
       <div className="container mx-auto p-2.5">
-        <MainNav className="mx-6" navConfig={filteredNavs} />
+        <Navbar className="mx-6" navConfig={filteredNavs} />
       </div>
     </header>
   );
