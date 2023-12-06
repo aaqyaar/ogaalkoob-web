@@ -1,5 +1,6 @@
 import { isAuthenticated } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { Genre } from "@prisma/client";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -59,10 +60,21 @@ export async function PUT(req: NextRequest, { params }: BookParams) {
   try {
     await isAuthenticated(req);
 
+    let genre: Genre["id"][] = [];
+
+    if (body.genre) {
+      genre = Array.isArray(body.genre) ? body.genre : [body.genre];
+    }
+
+    genre = genre?.filter(Boolean);
+
     const book = await prisma.book.update({
       where: { id: params.id },
       data: {
         ...body,
+        genre: {
+          connect: genre?.map((pre: Genre["id"]) => ({ id: pre })),
+        },
       },
     });
 

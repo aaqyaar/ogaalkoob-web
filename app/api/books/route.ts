@@ -7,7 +7,7 @@ import * as z from "zod";
 
 export async function GET(req: NextRequest) {
   try {
-    await isAuthenticated(req, ["ADMIN", "SUBSCRIBER"]);
+    const { user } = await isAuthenticated(req, ["ADMIN", "SUBSCRIBER"]);
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") as string) || 1;
@@ -61,6 +61,8 @@ export async function GET(req: NextRequest) {
         }
       : {};
 
+    // if user is not admin, don't add pdfUrl, audioUrl
+
     const [books, total] = await Promise.all([
       prisma.book.findMany({
         skip,
@@ -77,6 +79,8 @@ export async function GET(req: NextRequest) {
           photos: true,
           publishedDate: true,
           isbn: true,
+          pdfUrl: user.role.name === "ADMIN" ? true : false,
+          audioUrl: user.role.name === "ADMIN" ? true : false,
           genre: {
             select: { id: true, name: true },
           },
@@ -149,7 +153,9 @@ export async function POST(req: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { errors: error.flatten().fieldErrors },
+        {
+          message: error.issues.map((issue) => issue.message).join("\n"),
+        },
         {
           status: 400,
         }
