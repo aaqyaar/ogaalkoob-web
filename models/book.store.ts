@@ -18,7 +18,7 @@ interface BookStore {
     message: string;
     data: Book;
   }>;
-
+  fetchAllBooks: () => Promise<Book[]>;
   editBook: (
     id: string,
     book: BookCreationDTO
@@ -100,6 +100,18 @@ export const useBookStore = create(
           throw error;
         }
       },
+      fetchAllBooks: async () => {
+        try {
+          set({ status: "pending" });
+          const response = await api.get<Book[]>(`/books/all`);
+          set({ status: "done" });
+          return response;
+        } catch (error) {
+          set({ status: "fail" });
+          throw error;
+        }
+      },
+
       fetchBook: async (id: string) => {
         try {
           set({ status: "pending" });
