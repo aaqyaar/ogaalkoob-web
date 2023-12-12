@@ -15,6 +15,7 @@ const isEmail = (val: string) => {
 };
 
 const validateUser = async (
+  path: "admin",
   username: string,
   password: string
 ): Promise<string> => {
@@ -24,6 +25,9 @@ const validateUser = async (
   const user = await prisma.user.findUnique({
     where: {
       ...query,
+      role: {
+        name: path == "admin" ? "ADMIN" : undefined,
+      },
     },
     include: { role: true },
   });
@@ -52,14 +56,16 @@ const validateUser = async (
 };
 
 export async function POST(req: NextRequest) {
-  const { username, password } = (await req.json()) as z.infer<
+  const { username, password, path } = (await req.json()) as z.infer<
     typeof loginSchema
-  >;
+  > & {
+    path: "admin";
+  };
 
   try {
     loginSchema.parse({ username, password });
 
-    const token = await validateUser(username, password);
+    const token = await validateUser(path, username, password);
 
     return getSuccessResponse({ token });
   } catch (err) {
