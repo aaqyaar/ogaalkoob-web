@@ -10,17 +10,17 @@ export const isAuthenticated = async (
   const authHeader = req.headers.get("authorization");
 
   if (!authHeader) {
-    throw new Error("Not authenticated");
+    throw { statusCode: 401, message: "Not authenticated" };
   }
 
   if (!authHeader.startsWith("Bearer ")) {
-    throw new Error("Not authenticated");
+    throw { statusCode: 401, message: "Not authenticated" };
   }
 
   const token = authHeader.split(" ")[1];
 
   if (!token) {
-    throw new Error("Not authenticated");
+    throw { statusCode: 401, message: "Not authenticated" };
   }
 
   const payload = verifyToken(token);
@@ -34,11 +34,14 @@ export const isAuthenticated = async (
   });
 
   if (!user) {
-    throw new Error("Not authenticated");
+    throw { statusCode: 401, message: "Not authenticated" };
   }
 
   if (!authorizedRoles.includes(user.role.name)) {
-    throw new Error("Forbidden, you are not authorized to access this route");
+    throw {
+      statusCode: 403,
+      message: "Forbidden, you are not authorized to access this route",
+    };
   }
 
   return { payload, user };
