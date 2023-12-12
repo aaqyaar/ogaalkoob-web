@@ -1,19 +1,15 @@
+import { getErrorResponse, getSuccessResponse } from "@/lib/helpers";
 import prisma from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   try {
     if (!body.code || !body.email) {
-      return NextResponse.json(
-        { message: "Code and email are required" },
-        {
-          status: 400,
-        }
-      );
+      return getErrorResponse("Code and email are required", 422);
     }
 
-    const passwordReset = await prisma.passwordReset.findFirst({
+    const passwordReset = await prisma.passwordReset.findUnique({
       where: {
         resetCode: body.code,
         resetCodeExpiry: {
@@ -23,29 +19,16 @@ export async function POST(req: NextRequest) {
     });
 
     if (!passwordReset) {
-      return NextResponse.json(
-        { message: "Password reset code is invalid or expired" },
-        {
-          status: 400,
-        }
-      );
+      return getErrorResponse("Password reset code is invalid or expired", 422);
     }
 
-    return NextResponse.json(
-      {
-        message: "Code is valid",
-        userId: passwordReset.userId,
-        email: body.email,
-      },
-      { status: 200 }
-    );
+    return getSuccessResponse({
+      message: "Code is valid",
+      userId: passwordReset.userId,
+      email: body.email,
+    });
   } catch (err) {
-    const error = err as Error;
-    return NextResponse.json(
-      { message: error.message || error.toString() },
-      {
-        status: 500,
-      }
-    );
+    const error = err as Error & { statusCode?: number };
+    return getErrorResponse(error.message, error.statusCode);
   }
 }

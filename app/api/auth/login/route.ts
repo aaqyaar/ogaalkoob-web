@@ -1,24 +1,45 @@
 import prisma from "@/lib/prisma";
-import { verifyPassword, generateToken } from "@/lib/helpers";
+import {
+  verifyPassword,
+  generateToken,
+  getErrorResponse,
+  getSuccessResponse,
+} from "@/lib/helpers";
 import { JwtPayload } from "@/types/auth";
 import { NextResponse, NextRequest } from "next/server";
 import { loginSchema } from "@/validations/user";
 import * as z from "zod";
 
-const login = async (email: string, password: string): Promise<string> => {
+const isEmail = (val: string) => {
+  return z.string().email().safeParse(val).success;
+};
+
+const validateUser = async (
+  username: string,
+  password: string
+): Promise<string> => {
+  //
+  const query = isEmail(username) ? { email: username } : { phone: username };
+
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: {
+      ...query,
+    },
     include: { role: true },
   });
   if (!user) {
-    throw new Error("Invalid email or password");
+    throw { message: "Account not exist", statusCode: 404 };
   }
   const validPassword = await verifyPassword(password, user.password);
+
   if (!validPassword) {
-    throw new Error("Invalid email or password");
+    throw { message: "Invalid password", statusCode: 400 };
   }
   if (user.status !== "ACTIVE") {
-    throw new Error("Your account is not active, please contact support");
+    throw {
+      message: "Your account is not active, please contact support",
+      statusCode: 400,
+    };
   }
 
   const payload: JwtPayload = {
@@ -31,45 +52,25 @@ const login = async (email: string, password: string): Promise<string> => {
 };
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const { username, password } = (await req.json()) as z.infer<
+    typeof loginSchema
+  >;
 
   try {
-    loginSchema.parse({ email, password });
+    loginSchema.parse({ username, password });
 
-    const token = await login(email, password);
+    const token = await validateUser(username, password);
 
-    return new NextResponse(JSON.stringify({ token }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    return getSuccessResponse({ token });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return new NextResponse(
-        JSON.stringify({ errors: err.flatten().fieldErrors }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
+      return NextResponse.json(
+        { status: "fail", message: err.flatten().fieldErrors },
+        { status: 400 }
       );
     }
 
-    const error = err as Error;
-    console.log(error);
-    return new NextResponse(
-      JSON.stringify({ message: error.message || error.toString() }),
-      {
-        status: 401,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    const error = err as Error & { statusCode?: number };
+    return getErrorResponse(error.message, error.statusCode);
   }
 }

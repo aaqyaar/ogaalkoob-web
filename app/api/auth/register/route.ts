@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma, Role, User } from "@prisma/client";
-import { hashPassword, generateToken } from "@/lib/helpers";
+import {
+  hashPassword,
+  generateToken,
+  getErrorResponse,
+  getSuccessResponse,
+} from "@/lib/helpers";
 import { registerSchema } from "@/validations/user";
 import * as z from "zod";
 import { JwtPayload } from "@/types/auth";
@@ -12,8 +17,9 @@ const register = async (
   const existingUser = await prisma.user.findUnique({
     where: { email: user.email },
   });
+
   if (existingUser) {
-    throw new Error("Email already exists");
+    throw { message: "Email already exist", statusCode: 400 };
   }
   const hash = await hashPassword(user.password);
   const subscriberRole = await prisma.role.findFirst({
@@ -38,7 +44,7 @@ const register = async (
 };
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const body = (await req.json()) as Prisma.UserCreateInput;
 
   try {
     registerSchema.parse(body);
@@ -46,13 +52,7 @@ export async function POST(req: NextRequest) {
     const user = await register(body);
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ message: "Unable to register user" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return getErrorResponse("Something went wrong", 500);
     }
 
     const payload: JwtPayload = {
@@ -63,32 +63,20 @@ export async function POST(req: NextRequest) {
     };
 
     const token = generateToken(payload);
+
     req.cookies.set("token", token);
 
-    return new NextResponse(JSON.stringify({ token }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return getSuccessResponse({ token });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return new NextResponse(
-        JSON.stringify({
-          errors: err.flatten().fieldErrors,
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
+      return NextResponse.json(
+        { status: "fail", message: err.flatten().fieldErrors },
+        { status: 400 }
       );
     }
 
-    const error = err as Error;
+    const error = err as Error & { statusCode?: number };
 
-    return new NextResponse(
-      JSON.stringify({ message: error.message || error.toString() }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return getErrorResponse(error.message, error.statusCode);
   }
 }
