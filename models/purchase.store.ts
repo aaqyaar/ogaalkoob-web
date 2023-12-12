@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Status } from "./auth-store";
+import { Status } from "./auth.store";
 import api from "@/services/api";
 import { PaginationResult } from "@/services/api.types";
 import { Purchase, PurchaseStatus, PurchaseCreationDTO } from "@/types";

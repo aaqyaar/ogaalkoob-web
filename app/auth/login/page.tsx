@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui";
-import { useAuthStore } from "@/models/auth-store";
+import { useAuthStore } from "@/models/auth.store";
 import { useRouter } from "next/navigation";
 import React from "react";
 import toast from "react-hot-toast";
@@ -23,6 +23,7 @@ import { loginSchema } from "@/validations/user";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { formatError } from "@/lib/format-err";
 
 export default function LoginPage() {
   const { login, status, setStatus } = useAuthStore();
@@ -45,16 +46,9 @@ export default function LoginPage() {
       })
       .catch((err) => {
         setStatus("fail");
-        const error = err as Error;
-        toast.error(
-          typeof error.message === "string"
-            ? error.message
-            : Array.isArray(error.message)
-            ? error.message[0]
-            : typeof error.message === "object"
-            ? (Object.values(error.message)[0] as unknown as any)
-            : "Something went wrong"
-        );
+        const error = formatError(err);
+        // const error = err as Error;
+        toast.error(error);
       });
   };
 

@@ -2,7 +2,7 @@ import { Role, User } from "@/types";
 import { create } from "zustand";
 import api from "@/services/api";
 import { persist } from "zustand/middleware";
-import { Status } from "./auth-store";
+import { Status } from "./auth.store";
 import { PaginationResult } from "@/services/api.types";
 
 interface UserStore {
