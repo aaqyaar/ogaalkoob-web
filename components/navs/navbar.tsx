@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { useAuthStore } from "@/models/auth-store";
+import { useAuthStore } from "@/models/auth.store";
 import { Button } from "../ui";
 import dynamic from "next/dynamic";
 

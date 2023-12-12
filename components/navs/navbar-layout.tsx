@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { INavbar } from "./navbar";
-import { useAuthStore } from "@/models/auth-store";
+import { useAuthStore } from "@/models/auth.store";
 import dynamic from "next/dynamic";
 
 const Navbar = dynamic(() => import("./navbar"), { ssr: false });

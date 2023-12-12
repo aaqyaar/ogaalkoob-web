@@ -36,7 +36,7 @@ import { Role, Status, User } from "@/types";
 import toast from "react-hot-toast";
 import { registerSchema } from "@/validations/user";
 import { useUserStore } from "@/models/users.store";
-import { useAuthStore } from "@/models/auth-store";
+import { useAuthStore } from "@/models/auth.store";
 
 interface NewEditUserDialogProps {
   open: boolean;
