@@ -6,5 +6,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <AuthProvider>
+      <div id="modal-root"></div>
+      {children}
+    </AuthProvider>
+  );
 }

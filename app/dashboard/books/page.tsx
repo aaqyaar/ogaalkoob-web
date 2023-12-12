@@ -1,9 +1,9 @@
 "use client";
 import React, { Suspense } from "react";
-import { DataTable } from "../data-table";
+import { DataTable } from "./data-table";
 import { useBookStore } from "@/models/book.store";
 import LoadingScreen from "@/components/loading-screen";
-import { columns } from "../columns";
+import { columns } from "./columns";
 
 export default function BooksPage() {
   const { fetchBooks, books } = useBookStore();
