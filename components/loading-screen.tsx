@@ -4,6 +4,8 @@ import NProgress from "nprogress";
 import { useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import { Router } from "next/router";
 
 export function ProgressBarStyle() {
   return (
@@ -42,7 +44,11 @@ function ProgressBar() {
   return null;
 }
 
-export default function LoadingScreen({ ...other }) {
+Router.events.on("routeChangeStart", () => NProgress.start());
+Router.events.on("routeChangeComplete", () => NProgress.done());
+Router.events.on("routeChangeError", () => NProgress.done());
+
+function Loading({ ...other }) {
   return (
     <>
       <ProgressBar />
@@ -111,3 +117,7 @@ export default function LoadingScreen({ ...other }) {
     </>
   );
 }
+
+export default dynamic(() => Promise.resolve(Loading), {
+  ssr: false,
+});
