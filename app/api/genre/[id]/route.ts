@@ -14,11 +14,11 @@ export async function PUT(
     };
   }
 ) {
-  const body = await req.json();
+  const body = (await req.json()) as z.infer<typeof genreSchema>;
   try {
     await isAuthenticated(req, ["ADMIN"]);
 
-    genreSchema.parse(req.body);
+    genreSchema.parse(body);
 
     const genre = await prisma.genre.update({
       where: {

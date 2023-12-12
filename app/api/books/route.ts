@@ -61,14 +61,17 @@ export async function GET(req: NextRequest) {
         }
       : {};
 
-    // if user is not admin, don't add pdfUrl, audioUrl
-
     const [books, total] = await Promise.all([
       prisma.book.findMany({
         skip,
         take: limit,
         where: {
           ...query,
+          // purchases: {
+          //   none: {
+          //     userId: user.id,
+          //   },
+          // },
         },
         select: {
           id: true,

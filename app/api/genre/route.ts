@@ -13,16 +13,22 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") as string) || 5;
     const skip = (page - 1) * limit;
 
-    const genres = await prisma.genre.findMany({
-      skip,
-      take: limit,
+    const [genres, total] = await Promise.all([
+      await prisma.genre.findMany({
+        skip,
+        take: limit,
 
-      include: {
-        books: true,
-      },
-    });
-
-    const total = await prisma.genre.count();
+        include: {
+          books: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      }),
+      await prisma.genre.count(),
+    ]);
 
     const pages = Math.ceil(total / limit);
 
@@ -53,7 +59,7 @@ export async function POST(req: NextRequest) {
   try {
     await isAuthenticated(req, ["ADMIN"]);
 
-    genreSchema.parse(req.body);
+    genreSchema.parse(body);
 
     const genre = await prisma.genre.create({
       data: {
