@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma";
-import { generateResetCode, hashPassword } from "@/lib/helpers";
+import { formatPhoneNumber, generateResetCode } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 import MailService from "@/lib/nodemailer";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -48,11 +49,17 @@ export async function POST(req: NextRequest) {
     }
 
     // TODO: Send email with reset token
-    const message = `Your password reset code is: ${resetCode}`;
+    const message = `${resetCode} is your verification code. \nPlease do not share this with anyone.`;
 
     const mailService = new MailService();
 
     await mailService.sendMail(user.email, "Password Reset", message);
+
+    await axios.post("http://localhost:3000/api/sendText", {
+      chatId: `${formatPhoneNumber(user.phone)}@c.us`,
+      text: message,
+      session: "default",
+    });
 
     return NextResponse.json(
       { message: `Reset Password has been sent out ${user.email}` },
