@@ -18,6 +18,12 @@ export enum RoleName {
   SUBSCRIBER = "SUBSCRIBER",
 }
 
+export enum PaymentMethod {
+  CARD = "CARD",
+  CASH = "CASH",
+  MMT = "MMT",
+}
+
 // Define the Genre interface
 export interface Genre {
   id: string;
@@ -26,6 +32,8 @@ export interface Genre {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface GenreCreationDTO extends Prisma.GenreCreateInput {}
 
 // Define the Book interface
 export interface Book {
@@ -64,14 +72,23 @@ export interface Purchase {
   user: User;
   books: Book[];
   status: PurchaseStatus;
-
+  paymentMethod: PaymentMethod;
+  phoneNumber: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface PurchaseCreationDTO
+  extends Omit<Prisma.PurchaseCreateInput, "books" | "user"> {
+  books: Book["id"][];
+  userId: string;
+  id?: string;
 }
 
 export interface User {
   id: string;
   email: string;
+  phone: string;
   password: string;
   name: string;
   status: Status;

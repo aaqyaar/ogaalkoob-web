@@ -1,9 +1,9 @@
 "use client";
 import React, { Suspense } from "react";
-import { DataTable } from "./data-table";
+import { DataTable } from "./books/data-table";
 import { useBookStore } from "@/models/book.store";
 import LoadingScreen from "@/components/loading-screen";
-import { columns } from "./columns";
+import { columns } from "./books/columns";
 
 export default function Dashboard() {
   const { fetchBooks, books } = useBookStore();
@@ -29,7 +29,7 @@ export default function Dashboard() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <div className="container mx-auto py-10">
-        <div className="h-full flex-1 flex-col space-y-8 md:p-8 p-0 ">
+        <div className="h-full flex-1 flex-col space-y-8 md:p-8 p-0">
           <div className="flex items-center justify-between space-y-2">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">

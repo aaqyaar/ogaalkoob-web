@@ -25,27 +25,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 export default function LoginPage() {
-  const { token, login, status, setStatus } = useAuthStore((state) => state);
+  const { login, status, setStatus } = useAuthStore();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-    login(data.email, data.password)
+    login(data.username, data.password)
       .then((res) => {
         if (res && res.token) {
-          router.replace("/");
+          router.replace("/dashboard");
         }
       })
       .catch((err) => {
-        setStatus(err.message);
-        toast.error(err.message);
+        setStatus("fail");
+        const error = err as Error;
+        toast.error(
+          typeof error.message === "string"
+            ? error.message
+            : Array.isArray(error.message)
+            ? error.message[0]
+            : typeof error.message === "object"
+            ? (Object.values(error.message)[0] as unknown as any)
+            : "Something went wrong"
+        );
       });
   };
 
@@ -60,15 +69,15 @@ export default function LoginPage() {
           <CardContent className="grid gap-4">
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel>Email or Phone</FormLabel>
                   <FormControl>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
+                      id="username"
+                      type="text"
+                      placeholder="m@example.com or 1234567890"
                       {...field}
                     />
                   </FormControl>
