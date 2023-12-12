@@ -1,7 +1,7 @@
 import { books, genre as genres } from "./books-seed";
 import { users, roles } from "./user-seed";
-import prisma from "@/lib/prisma";
-import { hashPassword } from "@/lib/helpers";
+import prisma from "../../lib/prisma";
+import { hashPassword } from "../../lib/helpers";
 
 async function main() {
   console.log(`Start seeding ...`);
@@ -72,7 +72,7 @@ async function main() {
   });
 
   for (const user of users) {
-    const { email, password, name, status } = user;
+    const { email, password, name, status, phone } = user;
     console.log(`Adding user: ${email}`);
     const hash = await hashPassword(password);
     await prisma.user.create({
@@ -81,6 +81,7 @@ async function main() {
         password: hash,
         name,
         status,
+        phone,
         role: {
           connect: {
             id:

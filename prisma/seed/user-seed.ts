@@ -1,4 +1,4 @@
-import { User, Role, Prisma } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 enum Status {
   ACTIVE = "ACTIVE",
@@ -24,17 +24,20 @@ export const users = [
     password: "123456",
     name: "Abdi Zamed Mohamed",
     status: Status.ACTIVE,
+    phone: "252618977249",
   },
   {
     email: "active@test.com",
     password: "123456",
     name: "Test User",
     status: Status.ACTIVE,
+    phone: "252618977248",
   },
   {
     email: "inactive@test.com",
     password: "123456",
     name: "Test User",
     status: Status.INACTIVE,
+    phone: "252618977247",
   },
 ];
