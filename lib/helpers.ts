@@ -42,18 +42,46 @@ export const generateResetCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+export const fCurrency = (amount: number): string => {
+  return amount.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+};
+
 export function getErrorResponse(
   error: string | null = null,
   status: number = 500
 ) {
+  const err = error?.includes("prisma")
+    ? "Something went wrong, please try again later"
+    : error;
+
   return new NextResponse(
     JSON.stringify({
       status: status < 500 ? "fail" : "error",
-      message: error ? error : null,
+      message: err ? err : null,
     }),
     {
       status,
       headers: { "Content-Type": "application/json" },
     }
   );
+}
+
+export function getSuccessResponse<T>(data: T, status: number = 200) {
+  return new NextResponse(
+    JSON.stringify({
+      status: "success",
+      ...data,
+    }),
+    {
+      status,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
+export function formatPhoneNumber(phone: string): string {
+  return phone.replace(/\s/g, "").replace("+", "");
 }
