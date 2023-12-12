@@ -1,6 +1,8 @@
 const express = require("express");
 const next = require("next");
 const cors = require("cors");
+const { Client } = require("whatsapp-web.js");
+const qrcode = require("qrcode-terminal");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -16,8 +18,8 @@ app.prepare().then(() => {
     return handle(req, res);
   });
 
-  server.listen(3000, (err) => {
+  server.listen(3001, (err) => {
     if (err) throw err;
-    console.log("> Ready on http://localhost:3000");
+    console.log("> Ready on http://localhost:3001");
   });
 });

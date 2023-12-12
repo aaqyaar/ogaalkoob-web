@@ -20,15 +20,6 @@ class ApiService {
 
     this.instance.defaults.headers.common["Content-Type"] = "application/json";
 
-    // Add authorization token if needed
-    const store = load("authStore") as {
-      state: ILoginResponse;
-    };
-
-    this.instance.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${store?.state?.token}`;
-
     this.instance.interceptors.response.use(
       (response: AxiosResponse) => response,
       (err: Error) => {
@@ -53,11 +44,19 @@ class ApiService {
     headers?: AxiosRequestHeaders
   ): Promise<T> {
     try {
+      // Add authorization token if needed
+      const store = load("authStore") as {
+        state: ILoginResponse;
+      };
+
       const response: AxiosResponse<T> = await this.instance.request({
         method,
         url: endpoint,
         data,
-        headers,
+        headers: {
+          ...headers,
+          Authorization: `Bearer ${store?.state?.token}`,
+        },
       });
 
       return response.data;
