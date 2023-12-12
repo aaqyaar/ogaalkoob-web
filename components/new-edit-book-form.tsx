@@ -37,7 +37,7 @@ import { useDropzone } from "react-dropzone";
 import { Textarea } from "@/components/ui/textarea";
 import Select from "react-select";
 import { BookCreationDTO } from "@/types";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface NewEditBookFormProps {
   isEdit?: boolean;
@@ -85,6 +85,7 @@ export function NewEditBookForm(
       toast.success("Book created successfully");
       form.reset();
       setAcceptedFiles([]);
+      return router.replace("/dashboard/books");
     } catch (err) {
       const error = err as Error;
       toast.error(error.message);

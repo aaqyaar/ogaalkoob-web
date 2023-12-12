@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useAuthStore } from "@/models/auth-store";
 import { Button } from "../ui";
+import dynamic from "next/dynamic";
 
 interface NavConfig {
   label: string;
@@ -23,7 +24,7 @@ export interface INavbar extends React.HTMLAttributes<HTMLElement> {
   navConfig: NavConfig[];
 }
 
-export function Navbar({
+function Navbar({
   className,
   navConfig,
 
@@ -60,7 +61,7 @@ export function Navbar({
                   <ul className=" w-[150px] p-4 md:w-[150px] lg:w-[220px] ">
                     {navConfig.map(({ label, href }, index) => (
                       <li key={index}>
-                        <Link href={href} legacyBehavior passHref>
+                        <Link key={index} href={href} legacyBehavior passHref>
                           <NavigationMenuLink
                             className={`${navigationMenuTriggerStyle()}`}
                           >
@@ -87,3 +88,7 @@ export function Navbar({
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(Navbar), {
+  ssr: false,
+});

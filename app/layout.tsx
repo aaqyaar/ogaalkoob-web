@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Urbanist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import NavbarLayout from "@/components/navs/navbar-layout";
+import { Layout } from "@/components/app-layout";
 
-const inter = Inter({ subsets: ["latin"] });
+const urbanist = Urbanist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Ogaalkoob | Home",
@@ -18,9 +18,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <NavbarLayout />
-        {children}
+      <body className={urbanist.className}>
+        <Layout>{children}</Layout>
         <Toaster position="top-right" />
       </body>
     </html>
